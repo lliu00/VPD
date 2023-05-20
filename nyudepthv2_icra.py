@@ -49,6 +49,7 @@ class nyudepthv2(BaseDataset):
         img_path = self.data_path + self.filenames_list[idx].split(' ')[0]
         gt_path = self.data_path + self.filenames_list[idx].split(' ')[1]
         filename = img_path.split('/')[-2] + '_' + img_path.split('/')[-1]
+
         class_id = -1
         for i, name in enumerate(self.class_list):
             if name in filename:
@@ -56,6 +57,7 @@ class nyudepthv2(BaseDataset):
                 break
         
         assert class_id >= 0
+        print(img_path)
         image = cv2.imread(img_path)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         # depth = cv2.imread(gt_path, cv2.IMREAD_UNCHANGED).astype('float32')

@@ -19,6 +19,7 @@ import utils_depth.logging as logging
 from dataset.base_dataset import get_dataset
 from configs.test_options import TestOptions
 import utils
+from tqdm import tqdm
 
 metric_name = ['d1', 'd2', 'd3', 'abs_rel', 'sq_rel', 'rmse', 'rmse_log',
                'log10', 'silog']
@@ -88,12 +89,13 @@ def validate(val_loader, model, device, args):
     ddp_logger = utils.MetricLogger()
 
     result_metrics = {}
+    pred_disps_mono = []
     for metric in metric_name:
         result_metrics[metric] = 0.0
 
-    for batch_idx, batch in enumerate(val_loader):
+    for batch_idx, batch in tqdm(enumerate(val_loader)):
         input_RGB = batch['image'].to(device)
-        depth_gt = batch['depth'].to(device)
+        # depth_gt = batch['depth'].to(device)
         filename = batch['filename'][0]
         class_id = batch['class_id']
 
@@ -127,10 +129,10 @@ def validate(val_loader, model, device, args):
             pred_d = pred_s/sliding_masks
 
         pred_d = pred_d.squeeze()
-        depth_gt = depth_gt.squeeze()
+        # depth_gt = depth_gt.squeeze()
 
-        pred_crop, gt_crop = metrics.cropping_img(args, pred_d, depth_gt)
-        computed_result = metrics.eval_depth(pred_crop, gt_crop)
+        # pred_crop, gt_crop = metrics.cropping_img(args, pred_d, depth_gt)
+        # computed_result = metrics.eval_depth(pred_crop, gt_crop)
     
         if args.save_eval_pngs:
             save_path = os.path.join(result_path, filename)
@@ -138,6 +140,8 @@ def validate(val_loader, model, device, args):
                 save_path = save_path.replace('jpg', 'png')
             pred_d = pred_d.squeeze()
             if args.dataset == 'nyudepthv2':
+                pred_disps_mono.append(pred_d.cpu().numpy())
+                
                 pred_d = pred_d.cpu().numpy() * 1000.0
                 cv2.imwrite(save_path, pred_d.astype(np.uint16),
                             [cv2.IMWRITE_PNG_COMPRESSION, 0])
@@ -145,6 +149,8 @@ def validate(val_loader, model, device, args):
                 pred_d = pred_d.cpu().numpy() * 256.0
                 cv2.imwrite(save_path, pred_d.astype(np.uint16),
                             [cv2.IMWRITE_PNG_COMPRESSION, 0])
+                
+            
             
         if args.save_visualize:
             save_path = os.path.join(result_path, filename)
@@ -153,18 +159,21 @@ def validate(val_loader, model, device, args):
             pred_d_numpy = pred_d_numpy.astype(np.uint8)
             pred_d_color = cv2.applyColorMap(pred_d_numpy, cv2.COLORMAP_RAINBOW)
             cv2.imwrite(save_path, pred_d_color)
+        
+    print(pred_disps_mono[0].shape)
+    np.savez_compressed("disp.npz", data=pred_disps_mono)
+    
+    #     ddp_logger.update(**computed_result)
+    #     for key in result_metrics.keys():
+    #         result_metrics[key] += computed_result[key]
 
-        ddp_logger.update(**computed_result)
-        for key in result_metrics.keys():
-            result_metrics[key] += computed_result[key]
+    # for key in result_metrics.keys():
+    #     result_metrics[key] = result_metrics[key] / (batch_idx + 1)
 
-    for key in result_metrics.keys():
-        result_metrics[key] = result_metrics[key] / (batch_idx + 1)
+    # ddp_logger.synchronize_between_processes()
 
-    ddp_logger.synchronize_between_processes()
-
-    for key in result_metrics.keys():
-        result_metrics[key] = ddp_logger.meters[key].global_avg
+    # for key in result_metrics.keys():
+    #     result_metrics[key] = ddp_logger.meters[key].global_avg
 
     return result_metrics
 

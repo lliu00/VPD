@@ -15,7 +15,7 @@ from omegaconf import OmegaConf
 from ldm.util import instantiate_from_config
 import torch.nn.functional as F
 
-from vpd.models import UNetWrapper, TextAdapterDepth
+from .vpd.models import UNetWrapper, TextAdapterDepth
 
 class VPDDepthEncoder(nn.Module):
     def __init__(self, out_dim=1024, ldm_prior=[320, 640, 1280+1280], sd_path=None, text_dim=768,

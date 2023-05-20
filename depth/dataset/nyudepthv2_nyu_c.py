@@ -21,7 +21,7 @@ class nyudepthv2(BaseDataset):
         self.scale_size = scale_size
 
         self.is_train = is_train
-        self.data_path = os.path.join(data_path, 'icra')
+        self.data_path = os.path.join(data_path, 'nyu_c')
 
         self.image_path_list = []
         self.depth_path_list = []
@@ -29,10 +29,10 @@ class nyudepthv2(BaseDataset):
         with open('nyu_class_list.json', 'r') as f:
             self.class_list = json.load(f)
 
-        txt_path = os.path.join(filenames_path, 'nyudepthv2_icra')
+        txt_path = os.path.join(filenames_path, 'nyudepthv2_c')
         if is_train:
             txt_path += '/train_list.txt'
-            self.data_path = self.data_path + '/sync'
+            self.data_path = self.data_path
         else:
             txt_path += '/test_list.txt'
             self.data_path = self.data_path 
@@ -46,8 +46,8 @@ class nyudepthv2(BaseDataset):
         return len(self.filenames_list)
 
     def __getitem__(self, idx):
-        img_path = self.data_path + self.filenames_list[idx].split(' ')[0]
-        gt_path = self.data_path + self.filenames_list[idx].split(' ')[1]
+        img_path = os.path.join(self.data_path, self.filenames_list[idx].split(' ')[0])
+        gt_path = os.path.join(self.data_path.replace("nyu_c","nyu_depth_v2"),self.filenames_list[idx].split(' ')[1])
         filename = img_path.split('/')[-2] + '_' + img_path.split('/')[-1]
         class_id = -1
         for i, name in enumerate(self.class_list):
@@ -58,7 +58,7 @@ class nyudepthv2(BaseDataset):
         assert class_id >= 0
         image = cv2.imread(img_path)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        # depth = cv2.imread(gt_path, cv2.IMREAD_UNCHANGED).astype('float32')
+        depth = cv2.imread(gt_path, cv2.IMREAD_UNCHANGED).astype('float32')
 
         # print(image.shape, depth.shape, self.scale_size)
 
@@ -71,8 +71,8 @@ class nyudepthv2(BaseDataset):
         if self.is_train:
             image, depth = self.augment_training_data(image, depth)
         else:
-            image =  self.to_tensor(image)
+            image, depth = self.augment_test_data(image, depth)
 
-        # depth = depth / 1000.0  # convert in meters
+        depth = depth / 1000.0  # convert in meters
 
-        return {'image': image,  'filename': filename, 'class_id': class_id}
+        return {'image': image, 'depth': depth, 'filename': filename, 'class_id': class_id}
