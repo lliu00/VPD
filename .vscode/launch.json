@@ -52,7 +52,7 @@
             "justMyCode": true,
             "cwd": "/ssd/ll/VPD/depth",
             "args": [
-                "--nproc_per_node=1",
+                "--nproc_per_node=2",
                 "--use_env",
                 "train.py",
                 "--batch_size", "1",
@@ -69,13 +69,13 @@
                 "--save_model", 
                 "--layer_decay", "0.9",
                 "--drop_path_rate", "0.3",
-                "--log_dir", "log_dir",
+                "--log_dir", "log_dir_hdn",
                 "--crop_h", "480",
                 "--crop_w", "480",
                 "--epochs", "30",
                 "--resume-from", "/ssd/ll/VPD/depth/checkpoints/epoch_25_model.ckpt",
         ],
-            "env": {"CUDA_VISIBLE_DEVICES":"5"}
+            "env": {"CUDA_VISIBLE_DEVICES":"0,1"}
         }
     ]
 }

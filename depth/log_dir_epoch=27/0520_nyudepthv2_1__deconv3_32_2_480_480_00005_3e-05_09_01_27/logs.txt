@@ -1,0 +1,51 @@
+exp_name:,	
+gpu_or_cpu:gpu,	
+data_path:./,	
+dataset:nyudepthv2,	
+batch_size:1,	
+workers:8,	
+max_depth:10.0,	
+max_depth_eval:10.0,	
+min_depth_eval:0.001,	
+do_kb_crop:1,	
+kitti_crop:None,	
+pretrained:,	
+drop_path_rate:0.3,	
+use_checkpoint:False,	
+num_deconv:3,	
+num_filters:[32, 32, 32],	
+deconv_kernels:[2, 2, 2],	
+shift_window_test:True,	
+shift_size:2,	
+flip_test:True,	
+epochs:27,	
+max_lr:0.0005,	
+min_lr:3e-05,	
+weight_decay:0.1,	
+layer_decay:0.9,	
+crop_h:480,	
+crop_w:480,	
+log_dir:log_dir_epoch=27,	
+val_freq:1,	
+pro_bar:False,	
+save_freq:1,	
+print_freq:100,	
+save_model:True,	
+resume_from:/ssd/ll/VPD/depth/checkpoints/epoch_25_model.ckpt,	
+auto_resume:False,	
+save_result:False,	
+rank:0,	
+world_size:3,	
+gpu:0,	
+dist_url:env://,	
+distributed:True,	
+dist_backend:nccl,	
+
+
+Epoch: 026 - 027Epoch: [26][0/267]	Loss: 0.04000850021839142, LR: 6.254444465790196e-05
+Epoch: [26][100/267]	Loss: 0.06080936518783617, LR: 5.027914975669985e-05
+Epoch: [26][200/267]	Loss: 0.05508404369674512, LR: 3.805091602885241e-05
+
+Epoch: 027 - 027Epoch: [27][0/267]	Loss: 0.034420572221279144, LR: 3e-05
+Epoch: [27][100/267]	Loss: 0.04538280035525855, LR: 3e-05
+Epoch: [27][200/267]	Loss: 0.04541776066099233, LR: 3e-05

@@ -24,6 +24,8 @@ from configs.train_options import TrainOptions
 import glob
 import utils
 
+from hdn_loss import hdn_total_loss
+
 metric_name = ['d1', 'd2', 'd3', 'abs_rel', 'sq_rel', 'rmse', 'rmse_log',
                'log10', 'silog']
 
@@ -225,7 +227,9 @@ def train(train_loader, model, criterion_d, log_txt, optimizer, device, epoch, a
         preds = model(input_RGB, class_ids=batch['class_id'])
 
         optimizer.zero_grad()
-        loss_d = criterion_d(preds['pred_d'].squeeze(dim=0), depth_gt)
+        # loss_d = criterion_d(preds['pred_d'].squeeze(dim=0), depth_gt)
+        valid_mask = (depth_gt.unsqueeze(0) > 0).detach()
+        loss_d = hdn_total_loss(preds['pred_d'], depth_gt.unsqueeze(0), valid_mask)
 
         if args.rank == 0:
             depth_loss.update(loss_d.item(), input_RGB.size(0))
