@@ -188,7 +188,7 @@ def main():
                         'model': model_without_ddp.state_dict(),
                         'optimizer': optimizer.state_dict()
                     },
-                    os.path.join(log_dir, 'last.ckpt'))
+                    os.path.join(log_dir, str(epoch) +'last.ckpt'))
             
             # if results_dict['rmse'] < best_rmse:
             #     best_rmse = results_dict['rmse']
@@ -227,9 +227,9 @@ def train(train_loader, model, criterion_d, log_txt, optimizer, device, epoch, a
         preds = model(input_RGB, class_ids=batch['class_id'])
 
         optimizer.zero_grad()
-        # loss_d = criterion_d(preds['pred_d'].squeeze(dim=0), depth_gt)
-        valid_mask = (depth_gt.unsqueeze(0) > 0).detach()
-        loss_d = hdn_total_loss(preds['pred_d'], depth_gt.unsqueeze(0), valid_mask)
+        loss_d = criterion_d(preds['pred_d'].squeeze(dim=0), depth_gt)
+        # valid_mask = (depth_gt.unsqueeze(0) > 0).detach()
+        # loss_d = hdn_total_loss(preds['pred_d'], depth_gt.unsqueeze(0), valid_mask)
 
         if args.rank == 0:
             depth_loss.update(loss_d.item(), input_RGB.size(0))
