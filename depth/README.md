@@ -1,7 +1,9 @@
-# Depth Estimation with VPD
+# Depth Estimation 
 ## Getting Started  
 
-1. Install the [mmcv-full](https://github.com/open-mmlab/mmcv) library and some required packages.
+1. Download the checkpoint of [stable-diffusion](https://github.com/runwayml/stable-diffusion) (we use `v1-5` by default) and put it in the `checkpoints` folder. Please also follow the instructions in [stable-diffusion](https://github.com/runwayml/stable-diffusion) to install the required packages.
+
+Install the [mmcv-full](https://github.com/open-mmlab/mmcv) library and some required packages.
 
 ```bash
 pip install openmim
@@ -29,17 +31,9 @@ Your dataset directory should be:
 ├──sync/
 ```
 
-## Results and Fine-tuned Models
-
-|  | RMSE | d1 | d2 | d3 | REL  | log_10 | Fine-tuned Model |
-|-------------------|-------|-------|--------|--------|--------|-------|-------|
-| **VPD** | 0.254 | 0.964 | 0.995 | 0.999 | 0.069 | 0.030 |[Tsinghua Cloud](https://cloud.tsinghua.edu.cn/f/7e4adc76cc9b4200ac79/?dl=1) |
-
-We offer the predicted depths in 16-bit format for NYU-Depth-v2 official test set [here](https://cloud.tsinghua.edu.cn/f/27354f47ba424bb3ad40/?dl=1).
-
 ## Training
 
-Run the following instuction to train the VPD-Depth model. We recommend using 8 NVIDIA V100 GPUs to train the model with a total batch size of 24. 
+Run the following instuction to train the model. We recommend using 8 NVIDIA V100 GPUs to train the model with a total batch size of 24. 
 
 ```
 bash train.sh <LOG_DIR>
@@ -50,3 +44,11 @@ Command format:
 ```
 bash test.sh <CHECKPOINT_PATH>
 ```
+For robodepth, we connot give the value of the metric, so the test results are all 0. 
+
+We also provide the checkpoint file, to test it, use command:
+```
+bash test.sh log_dir/last.ckpt
+```
+Note that please rename the dataset/nyudepthv2_icra.py file to 'nyudepthv2.py' when test.
+

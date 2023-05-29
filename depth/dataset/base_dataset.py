@@ -9,6 +9,8 @@ import albumentations as A
 from torch.utils.data import Dataset
 import torchvision.transforms as transforms
 
+from dataset.augmentations import augment_and_mix
+
 
 def get_dataset(dataset_name, **kwargs):
     dataset_name = dataset_name.lower()
@@ -64,7 +66,10 @@ class BaseDataset(Dataset):
         image = augmented['image']
         depth = augmented['depth']
 
-        image = self.to_tensor(image)
+        #mixaug
+        image = augment_and_mix(image/255.)
+        
+        image = self.to_tensor(image*255.)
         depth = self.to_tensor(depth).squeeze()
 
         self.count += 1
